@@ -1,6 +1,10 @@
 import { Router } from "express";
 import multer from "multer";
-import { createUser, getUsers } from "../server/controllers/controllers.js";
+import {
+  createUser,
+  getUsers,
+  loginUser,
+} from "../server/controllers/controllers.js";
 
 export const usersRouter = Router();
 
@@ -20,3 +24,4 @@ export const upload = multer({ storage, limits: { fileSize: 8000000 } });
 
 usersRouter.get("/get", getUsers);
 usersRouter.post("/create", upload.single("avatar"), createUser);
+usersRouter.post("/login", loginUser);
