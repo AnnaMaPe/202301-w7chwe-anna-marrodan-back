@@ -39,7 +39,7 @@ export const createUser = async (
       username,
       avatar,
       email,
-      password,
+      password: hashedPassword,
     });
 
     res.status(201).json({ username });

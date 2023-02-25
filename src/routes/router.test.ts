@@ -5,16 +5,13 @@ import { User } from "../database/models/User";
 import mongoose from "mongoose";
 import { type CredentialsUserStructure } from "../types";
 import { app } from "../server/app";
+import jsw from "jsonwebtoken";
 
 let server: MongoMemoryServer;
 
 beforeAll(async () => {
   server = await MongoMemoryServer.create();
   await connectDatabase(server.getUri());
-});
-
-afterEach(async () => {
-  await User.deleteMany();
 });
 
 afterAll(async () => {
@@ -30,7 +27,7 @@ const mockUser: CredentialsUserStructure = {
 };
 
 describe("Given a POST '/social/create' endpoint", () => {
-  describe("When it receives a request to create a new user with usernam 'Juairo' and password '12345678' and email 'hola@gmail.com' and avatar 'guapo.jpeg' ", () => {
+  describe("When it receives a request to create a new user with username 'Juairo' and password '12345678' and email 'hola@gmail.com' and avatar 'guapo.jpeg' ", () => {
     test("Then it should respond with status 201", async () => {
       const expectedStatus = 201;
       const endpoint = "/social/create";
@@ -41,6 +38,25 @@ describe("Given a POST '/social/create' endpoint", () => {
         .expect(expectedStatus);
 
       expect(response.body).toHaveProperty("username", mockUser.username);
+    });
+  });
+});
+
+describe("Given a POST '/social/login' endpoint", () => {
+  describe("When it receives a request to log an existing user with username 'Juairo' and password '12345678' ", () => {
+    test("Then it should respond with status 200", async () => {
+      const expectedStatus = 200;
+      const expectedToken = "ThisIsAToken";
+      const endpoint = "/social/login";
+
+      jsw.sign = jest.fn().mockReturnValue(expectedToken);
+
+      const response = await request(app)
+        .post(endpoint)
+        .send(mockUser)
+        .expect(expectedStatus);
+
+      expect(response.body).toHaveProperty("token", expectedToken);
     });
   });
 });
