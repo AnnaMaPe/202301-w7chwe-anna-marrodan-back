@@ -9,7 +9,7 @@ module.exports = {
     "!src/loadEnvironment.ts",
     "!src/index.ts",
     "!src/server/startServer.ts",
-    "!src/server/index.ts",
-    "!src/routes/router.ts",
+    "!src/server/app.ts",
+    "!src/database/connectDatabase.ts",
   ],
 };
