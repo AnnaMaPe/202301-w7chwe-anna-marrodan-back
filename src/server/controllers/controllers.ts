@@ -3,7 +3,11 @@ import createDebug from "debug";
 import bcryptsjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../../database/models/User.js";
-import { type CredentialsUserStructure } from "../../types.js";
+import {
+  type CredentialUserStructure,
+  type PublicUserStructure,
+} from "../../types.js";
+import { CustomError } from "../../CustomError/CustomError.js";
 
 const debug = createDebug("users:controllers");
 
@@ -24,7 +28,7 @@ export const createUser = async (
   req: Request<
     Record<string, unknown>,
     Record<string, unknown>,
-    CredentialsUserStructure
+    PublicUserStructure
   >,
   res: Response,
   next: NextFunction
@@ -42,27 +46,62 @@ export const createUser = async (
       password: hashedPassword,
     });
 
-    res.status(201).json({ username });
-  } catch (error) {}
+    res.status(201).json({ message: "User was succesfully created" });
+  } catch (error) {
+    const customError = new CustomError(
+      "The user could not be created",
+      409,
+      "There was an issue creating the user"
+    );
+    next(customError);
+  }
 };
 
 export const loginUser = async (
   req: Request<
     Record<string, unknown>,
     Record<string, unknown>,
-    CredentialsUserStructure
+    CredentialUserStructure
   >,
   res: Response,
   next: NextFunction
 ) => {
   const { username, password } = req.body;
-  const user = await User.findOne({ username });
+  try {
+    const user = await User.findOne({ username });
 
-  const jwtPayload = {
-    sub: user?._id,
-  };
+    if (!user) {
+      const error = new CustomError(
+        "Wrong credentials",
+        401,
+        "Wrong credentials"
+      );
+      next(error);
+      return;
+    }
 
-  const token = jwt.sign(jwtPayload, process.env.JWT_SECRET!);
+    const passwordComparer = await bcryptsjs.compare(password, user.password!);
 
-  res.status(200).json({ token });
+    if (!passwordComparer) {
+      const error = new CustomError(
+        "Wrong credentials",
+        401,
+        "Wrong credentials"
+      );
+      next(error);
+      return;
+    }
+
+    const jwtPayload = {
+      sub: user?._id,
+    };
+
+    const token = jwt.sign(jwtPayload, process.env.JWT_SECRET!, {
+      expiresIn: "1d",
+    });
+
+    res.status(200).json({ token });
+  } catch (error) {
+    next(error);
+  }
 };

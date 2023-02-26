@@ -1,9 +1,9 @@
-export interface PublicUserStructure {
+export interface CredentialUserStructure {
+  password: string;
   username: string;
-  avatar: string;
 }
 
-export interface CredentialsUserStructure extends PublicUserStructure {
-  password: string;
+export interface PublicUserStructure extends CredentialUserStructure {
   email: string;
+  avatar: string;
 }

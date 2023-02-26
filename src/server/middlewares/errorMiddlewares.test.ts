@@ -25,7 +25,7 @@ describe("Given a generalError middleware", () => {
       const error = new CustomError(
         "There was an error",
         statusCode,
-        "There has been an error"
+        "There was an error"
       );
       generalError(error, req, res as Response, next);
       expect(res.status).toHaveBeenCalledWith(statusCode);
