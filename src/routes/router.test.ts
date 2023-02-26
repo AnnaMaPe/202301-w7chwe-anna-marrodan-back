@@ -37,17 +37,20 @@ describe("Given a POST '/social/create' endpoint", () => {
         .send(mockUser)
         .expect(expectedStatus);
 
-      expect(response.body).toHaveProperty("username", mockUser.username);
+      expect(response.body).toHaveProperty(
+        "message",
+        "User was succesfully created"
+      );
     });
   });
 });
 
 describe("Given a POST '/social/login' endpoint", () => {
+  const endpoint = "/social/login";
   describe("When it receives a request to log an existing user with username 'Juairo' and password '12345678' ", () => {
     test("Then it should respond with status 200", async () => {
       const expectedStatus = 200;
       const expectedToken = "ThisIsAToken";
-      const endpoint = "/social/login";
 
       jsw.sign = jest.fn().mockReturnValue(expectedToken);
 
@@ -57,6 +60,24 @@ describe("Given a POST '/social/login' endpoint", () => {
         .expect(expectedStatus);
 
       expect(response.body).toHaveProperty("token", expectedToken);
+    });
+  });
+
+  describe("When it receives a request to log a non-existing user with username 'Daiana' and password '12345612' ", () => {
+    test("Then it should respond with status 401", async () => {
+      const endpoint = "/social/login";
+      const expectedStatus = 401;
+      const nonRegisteredMockUser = {
+        username: "Daiana",
+        password: "12345612",
+      };
+
+      const response = await request(app)
+        .post(endpoint)
+        .send(nonRegisteredMockUser)
+        .expect(expectedStatus);
+
+      expect(response.body).toHaveProperty("error", "Wrong credentials");
     });
   });
 });

@@ -78,6 +78,18 @@ export const loginUser = async (
       return;
     }
 
+    const passwordComparer = await bcryptsjs.compare(password, user.password!);
+
+    if (!passwordComparer) {
+      const error = new CustomError(
+        "Wrong credentials",
+        401,
+        "Wrong credentials"
+      );
+      next(error);
+      return;
+    }
+
     const jwtPayload = {
       sub: user?._id,
     };
