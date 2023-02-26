@@ -3,7 +3,10 @@ import createDebug from "debug";
 import bcryptsjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../../database/models/User.js";
-import { type CredentialsUserStructure } from "../../types.js";
+import {
+  type CredentialUserStructure,
+  type PublicUserStructure,
+} from "../../types.js";
 import { CustomError } from "../../CustomError/CustomError.js";
 
 const debug = createDebug("users:controllers");
@@ -25,7 +28,7 @@ export const createUser = async (
   req: Request<
     Record<string, unknown>,
     Record<string, unknown>,
-    CredentialsUserStructure
+    PublicUserStructure
   >,
   res: Response,
   next: NextFunction
@@ -58,13 +61,12 @@ export const loginUser = async (
   req: Request<
     Record<string, unknown>,
     Record<string, unknown>,
-    CredentialsUserStructure
+    CredentialUserStructure
   >,
   res: Response,
   next: NextFunction
 ) => {
   const { username, password } = req.body;
-
   try {
     const user = await User.findOne({ username });
 
